@@ -1,0 +1,5 @@
+.idea/
+bin
+linux_amd64/
+internal/*
+.venv
