@@ -14,11 +14,6 @@ def createDbEngine(config: dict):
     db = config["database"]
     return create_engine(
         getDatabaseUrl(config),
-        pool_size=db.get("pool_size", 5),
-        max_overflow=db.get("max_overflow", 10),
-        pool_timeout=db.get("pool_timeout", 30),
-        pool_recycle=db.get("pool_recycle", 3600),
-        pool_pre_ping=db.get("pool_pre_ping", True)
     )
 
 

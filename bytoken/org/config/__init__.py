@@ -14,7 +14,7 @@ with open(file_path, 'r', encoding=encoding) as f:
 
 # 获取数据库端口配置
 db_host = config['database']['host']
-db_user = config['database']['user']
+db_user = config['database']['username']
 db_password = config['database']['password']
 db_name = config['database']['database']
 db_port = config['database']['port']

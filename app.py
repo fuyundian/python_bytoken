@@ -1,15 +1,16 @@
-# app.py
-from flask import Flask
-
+from bytoken.org.common.http import app
+from bytoken.org.common.res.DataRes import DataRes
 from bytoken.org.config import server_host, server_port
-
-app = Flask(__name__)
-
-
-@app.route('/hello')
-def home():
-    return "Hello, World"
+from bytoken.org.service import getUserService
 
 
-if __name__ == '__main__':
-    app.run(host=server_host, port=server_port)
+@app.get("/getUserById")
+async def getUserById(id: int):
+    user = getUserService().getUserById(id)
+    return DataRes.success(data=user)
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host=server_host, port=server_port)

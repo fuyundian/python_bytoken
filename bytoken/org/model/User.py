@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -16,19 +16,20 @@ class User(Base):
     faceUrl = Column("face_url", String)
     inviteCode = Column("invite_code", String)
     loginCount = Column("login_count", Integer)
-    inviteRelationTime = Column("invite_relation_time", String)
+    inviteRelationTime = Column("invite_relation_time", Date)
     inviterUserId = Column("inviter_user_id", String)
-    lastLoginTime = Column("last_login_time", String)
+    lastLoginTime = Column("last_login_time", Date)
     LoginIp = Column("login_ip", String)
     loginType = Column("login_type", Integer)
-    logoffTime = Column("logoff_time", String)
+    # logoffTime = Column("logoff_time", Date)
     myInviteCode = Column("my_invite_code", String)
     regFromCode = Column("reg_from_code", String)
     regIp = Column("reg_ip", String)
     regPlatform = Column("reg_platform", String)
     regReceive = Column("reg_receive", Integer)
     regSource = Column("reg_source", String)
-    regTime = Column("reg_time", String)
+    regTime = Column("reg_time", Date)
     userStatus = Column("user_status", Integer)
     userType = Column("user_type", Integer)
     whitelist = Column("whitelist", Integer)
+    whitelist = Column("create_time", Date)
