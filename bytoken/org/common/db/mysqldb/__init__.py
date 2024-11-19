@@ -11,7 +11,6 @@ def getDatabaseUrl(config: dict) -> str:
 
 
 def createDbEngine(config: dict):
-    db = config["database"]
     return create_engine(
         getDatabaseUrl(config),
     )
@@ -20,4 +19,4 @@ def createDbEngine(config: dict):
 # 创建 SQLAlchemy 引擎和会话
 engine = createDbEngine(config)
 # 设置会话
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)

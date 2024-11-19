@@ -1,12 +1,12 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
 
 class User(Base):
-    __tablename__ = 'user'
-    id = Column("id", Integer, primary_key=True)
+    __tablename__ = 'user'  # 确保与数据库表名一致
+    id = Column("id", BigInteger, primary_key=True)
     name = Column("name", String)
     email = Column(String)
     mobile = Column(String)
@@ -32,4 +32,3 @@ class User(Base):
     userStatus = Column("user_status", Integer)
     userType = Column("user_type", Integer)
     whitelist = Column("whitelist", Integer)
-    whitelist = Column("create_time", Date)
