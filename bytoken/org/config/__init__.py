@@ -22,3 +22,14 @@ db_port = config['database']['port']
 # 获取服务器端口配置
 server_host = config['server']['host']
 server_port = config['server']['port']
+
+# 服务端加密
+secret_key = config["secret_key"]
+algorithm = config["algorithm"]
+access_token_expire_minutes = config["access_token_expire_minutes"]
+
+# redis
+redis_host = config['redis']['host']
+redis_port = config['redis']['port']
+redis_password = config['redis']['password']
+redis_db = config['redis']['db']

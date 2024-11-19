@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Date, BigInteger
+from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, Date, BigInteger, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -11,7 +12,6 @@ class User(Base):
     email = Column(String)
     mobile = Column(String)
     password = Column(String)
-    password = Column(String)
     areaCode = Column("area_code", String)
     faceUrl = Column("face_url", String)
     inviteCode = Column("invite_code", String)
@@ -19,16 +19,21 @@ class User(Base):
     inviteRelationTime = Column("invite_relation_time", Date)
     inviterUserId = Column("inviter_user_id", String)
     lastLoginTime = Column("last_login_time", Date)
-    LoginIp = Column("login_ip", String)
+    loginIp = Column("login_ip", String)
     loginType = Column("login_type", Integer)
     # logoffTime = Column("logoff_time", Date)
     myInviteCode = Column("my_invite_code", String)
     regFromCode = Column("reg_from_code", String)
     regIp = Column("reg_ip", String)
     regPlatform = Column("reg_platform", String)
-    regReceive = Column("reg_receive", Integer)
-    regSource = Column("reg_source", String)
+    regReceive = Column("reg_receive", Boolean)
+    regSource = Column("reg_source", Integer)
     regTime = Column("reg_time", Date)
     userStatus = Column("user_status", Integer)
     userType = Column("user_type", Integer)
-    whitelist = Column("whitelist", Integer)
+    whitelist = Column("whitelist", Boolean)
+
+
+class UserLoginParam(BaseModel):
+    email: str
+    password: str

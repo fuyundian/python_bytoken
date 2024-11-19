@@ -2,6 +2,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
+from bytoken.org.common.http import app
 from bytoken.org.common.res.DataRes import DataRes
 
 
@@ -27,4 +28,5 @@ class CustomInterceptorMiddleware(BaseHTTPMiddleware):
                 ).dict()
             )
 
-# app.add_middleware(CustomInterceptorMiddleware)
+
+app.add_middleware(CustomInterceptorMiddleware)

@@ -9,7 +9,21 @@ database:
   password: 123456
   database: bytoken
   port: 3306
-
-logging:
-  log_level: DEBUG
-  log_file: app.log
+  pool_size: 10        # 连接池中维持的连接数
+  max_overflow: 20       # 连接池最大溢出连接数
+  pool_timeout: 30      # 获取连接的最大等待时间（秒）
+  pool_recycle: 3600     # 连接最大生命周期（秒）
+  pool_pre_ping: True     # 检查连接是否有效
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password:
+  idleTimeout: 30s
+  db: 0
+  dialTimeout: 30s
+  readTimeout: 30s
+  minIdle: 20
+  maxIdle: 60
+secret_key: bytoken-1823
+algorithm: HS256
+access_token_expire_minutes: 86400
