@@ -1,5 +1,6 @@
 from typing import Optional, TypeVar
 
+
 T = TypeVar('T')
 
 
@@ -17,5 +18,5 @@ class DataRes:
     def fail(cls, message: str, code: int = 400) -> "DataRes":
         return cls(code=code, message=message)
 
-    def to_dict(self):
+    def dict(self):
         return {"code": self.code, "message": self.message, "data": self.data}

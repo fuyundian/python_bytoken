@@ -13,7 +13,6 @@ from bytoken.org.model.User import User
 from bytoken.org.service.UserService import UserService
 
 
-
 class UserServiceImpl(UserService):
     def __init__(self):
         session = SessionLocal()
@@ -25,14 +24,14 @@ class UserServiceImpl(UserService):
         return user
 
     def login(self, loginParam) -> string:
-        if loginParam.email is None | loginParam.password is None | loginParam.email == "" | loginParam.password == "":
+        if (loginParam.email is None or loginParam.password is None or loginParam.email == ""
+                or loginParam.password == ""):
             raise ValueError("Parameter error")
         user = self.service.lambdaQuery().eq(loginParam.email != "", User.email, loginParam.email).one()
         if user is None:
             raise ValueError("User not found")
         if checkPassword(loginParam.password, user.password) is False:
             raise ValueError("Wrong user or password")
-        user.password = None
         token = createToken(data=user)
         redis_client = getCache().redis_client
         redis_client.set("python_user_token:" + user.id, token, access_token_expire_minutes)
@@ -40,16 +39,14 @@ class UserServiceImpl(UserService):
 
 
 def checkPassword(password: str, userPassword: str) -> bool:
-    return bcrypt.checkpw(userPassword.encode('utf-8'), password.encode('utf-8'))
+    return bcrypt.checkpw(password.encode('utf-8'), userPassword.encode('utf-8'))
 
 
 # JWT 生成器函数
-def createToken(data: dict, expires_delta: timedelta | None = None):
+def createToken(data: dict):
+    # 检查 data 是否为 None 或非字典
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=access_token_expire_minutes)
+    expire = datetime.utcnow() + timedelta(minutes=access_token_expire_minutes)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
     return encoded_jwt

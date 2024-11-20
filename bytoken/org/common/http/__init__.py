@@ -4,9 +4,14 @@ import jwt
 from fastapi import FastAPI
 from fastapi import HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
+from starlette.responses import JSONResponse
 
 from bytoken.org.common.cache import getCache
 from bytoken.org.common.db.mysqldb import SessionLocal
+from bytoken.org.common.http.Anonymous import Anonymous
+from bytoken.org.common.http.Handlers import CustomInterceptorMiddleware, httpExceptionHandler, authenticateRequest, \
+    generalExceptionHandler
+from bytoken.org.common.res.DataRes import DataRes
 from bytoken.org.config import secret_key, algorithm
 from bytoken.org.controller import UserController
 
@@ -40,25 +45,10 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(UserController.router, prefix="/user", tags=["user"])
 
-
-# 中间件：全局拦截请求进行认证
-@app.middleware("http")
-async def authenticate_request(request: Request, call_next):
-    # 检查当前请求的视图函数是否依赖于 NoAuth
-    if any(isinstance(dep, Anonymous) for dep in request.scope.get('dependencies', [])):
-        # 如果是 NoAuth 依赖的接口，跳过鉴权
-        response = await call_next(request)
-        return response
-    api_key = request.headers.get("Authorization")
-    if api_key != "mysecureapikey":
-        raise HTTPException(status_code=403, detail="Unauthorized")
-    response = await call_next(request)
-    return response
-
-
-# 定义一个空的依赖，用来标记不需要鉴权的接口
-class Anonymous:
-    pass
+app.middleware(CustomInterceptorMiddleware)
+app.middleware(authenticateRequest)
+app.add_exception_handler(handler=httpExceptionHandler, exc_class_or_status_code=HTTPException)
+app.add_exception_handler(handler=generalExceptionHandler, exc_class_or_status_code=Exception)
 
 
 # 用于验证用户身份的函数

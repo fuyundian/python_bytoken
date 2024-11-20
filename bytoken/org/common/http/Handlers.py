@@ -1,8 +1,9 @@
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+from fastapi import HTTPException, Request
 
-from bytoken.org.common.http import app
+from bytoken.org.common.http import Anonymous
 from bytoken.org.common.res.DataRes import DataRes
 
 
@@ -29,4 +30,35 @@ class CustomInterceptorMiddleware(BaseHTTPMiddleware):
             )
 
 
-app.add_middleware(CustomInterceptorMiddleware)
+# 自定义鉴权处理器
+async def authenticateRequest(request: Request, call_next):
+    print("Dependencies in request scope:", request.scope.get("dependencies", []))
+    if any(isinstance(dep, Anonymous) for dep in request.scope.get("dependencies", [])):
+        response = await call_next(request)
+        return response
+
+    api_key = request.headers.get("Authorization")
+    if api_key != "mysecureapikey":
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    response = await call_next(request)
+    return response
+
+
+# 捕获 HTTPException
+async def httpExceptionHandler(request: Request, exc: HTTPException) -> JSONResponse:
+    return JSONResponse(
+        DataRes(
+            code=exc.status_code,
+            message=exc.detail
+        ).dict()
+    )
+
+
+# 捕获其他异常
+async def generalExceptionHandler(request: Request, exc: Exception) -> JSONResponse:
+    return JSONResponse(
+        DataRes(
+            code=500,
+            message=str(exc)
+        ).dict()
+    )

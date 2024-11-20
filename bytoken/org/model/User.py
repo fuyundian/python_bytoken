@@ -11,7 +11,7 @@ class User(Base):
     name = Column("name", String)
     email = Column(String)
     mobile = Column(String)
-    password = Column(String)
+    password = Column("password", String)
     areaCode = Column("area_code", String)
     faceUrl = Column("face_url", String)
     inviteCode = Column("invite_code", String)
@@ -32,6 +32,9 @@ class User(Base):
     userStatus = Column("user_status", Integer)
     userType = Column("user_type", Integer)
     whitelist = Column("whitelist", Boolean)
+
+    def copy(self):
+        pass
 
 
 class UserLoginParam(BaseModel):
