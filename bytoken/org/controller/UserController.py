@@ -1,9 +1,10 @@
 from typing import Optional, Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from bytoken.org.common.http import Anonymous
 from bytoken.org.common.http.Anonymous import getAnonymous
+from bytoken.org.common.http.Auth import getUserId
 from bytoken.org.common.res.DataRes import DataRes
 from bytoken.org.model.User import UserLoginParam
 from bytoken.org.service import getUserService
@@ -12,8 +13,8 @@ router = APIRouter()
 
 
 @router.get("/getCurrentUser")
-async def getUserById(id: int):
-    user = getUserService().getUserById(id)
+async def getUserById(request: Request):
+    user = getUserService().getUserById(getUserId(request))
     return DataRes.success(data=user)
 
 

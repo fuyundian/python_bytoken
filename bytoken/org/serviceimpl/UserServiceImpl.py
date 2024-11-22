@@ -1,6 +1,7 @@
 # 具体实现 UserService 的类
 import string
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
+from typing import Any
 
 import bcrypt
 import jwt
@@ -18,9 +19,11 @@ class UserServiceImpl(UserService):
         session = SessionLocal()
         self.service = AbstractWrapper(User, session)
 
-    def getUserById(self, user_id: int) -> User:
+    def getUserById(self, user_id: int) -> Any | None:
+        if user_id is None:
+            return None
         user = self.service.lambdaQuery().eq(user_id > 0, User.id, user_id).one()
-        user.password = None
+        user.password = "***"
         return user
 
     def login(self, loginParam) -> string:
@@ -32,9 +35,9 @@ class UserServiceImpl(UserService):
             raise ValueError("User not found")
         if checkPassword(loginParam.password, user.password) is False:
             raise ValueError("Wrong user or password")
-        token = createToken(data=user)
+        token = createToken(user)
         redis_client = getCache().redis_client
-        redis_client.set("python_user_token:" + user.id, token, access_token_expire_minutes)
+        redis_client.set("python_user_token:" + str(user.id), token, access_token_expire_minutes)
         return token
 
 
@@ -43,10 +46,14 @@ def checkPassword(password: str, userPassword: str) -> bool:
 
 
 # JWT 生成器函数
-def createToken(data: dict):
-    # 检查 data 是否为 None 或非字典
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=access_token_expire_minutes)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
+def createToken(user: User) -> str:
+    # 生成 payload
+    payload = {
+        "user_id": user.id,
+        "username": user.name,
+        "issuer": "ByToken",
+        "subject": "ByToken",
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=access_token_expire_minutes)
+    }
+    encoded_jwt = jwt.encode(payload, secret_key, algorithm=algorithm)
     return encoded_jwt

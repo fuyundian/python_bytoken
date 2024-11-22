@@ -1,6 +1,6 @@
 # containers.py
 from dependency_injector import containers, providers
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 
 from bytoken.org.common.cache.Cache import Cache
 from bytoken.org.config import redis_host, redis_port, redis_db
@@ -11,5 +11,5 @@ class Container(containers.DeclarativeContainer):
 
 
 @inject
-def getCache(cache: Cache = Provide[Container.cache]) -> Cache:
-    return cache
+def getCache() -> Cache:
+    return Container().cache()

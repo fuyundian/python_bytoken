@@ -3,16 +3,14 @@ from typing import AsyncGenerator
 import jwt
 from fastapi import FastAPI
 from fastapi import HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.security import OAuth2PasswordBearer
-from starlette.responses import JSONResponse
 
 from bytoken.org.common.cache import getCache
 from bytoken.org.common.db.mysqldb import SessionLocal
 from bytoken.org.common.http.Anonymous import Anonymous
-from bytoken.org.common.http.Handlers import CustomInterceptorMiddleware, httpExceptionHandler, authenticateRequest, \
-    generalExceptionHandler
-from bytoken.org.common.res.DataRes import DataRes
-from bytoken.org.config import secret_key, algorithm
+from bytoken.org.common.http.Handlers import httpExceptionHandler, authenticateRequestMiddleware, \
+    generalExceptionHandler, validationExceptionHandler
 from bytoken.org.controller import UserController
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -42,21 +40,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 
 app = FastAPI(lifespan=lifespan)
-
-app.include_router(UserController.router, prefix="/user", tags=["user"])
-
-app.middleware(CustomInterceptorMiddleware)
-app.middleware(authenticateRequest)
+app.middleware(authenticateRequestMiddleware)
 app.add_exception_handler(handler=httpExceptionHandler, exc_class_or_status_code=HTTPException)
-app.add_exception_handler(handler=generalExceptionHandler, exc_class_or_status_code=Exception)
-
-
-# 用于验证用户身份的函数
-def verify_token(token: str):
-    try:
-        payload = jwt.decode(token, secret_key, algorithms=[algorithm])
-        return payload
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=403, detail="Invalid token")
+app.add_exception_handler(handler=generalExceptionHandler, exc_class_or_status_code=RequestValidationError)
+app.add_exception_handler(handler=validationExceptionHandler, exc_class_or_status_code=Exception)
+app.include_router(UserController.router, prefix="/user", tags=["user"])
