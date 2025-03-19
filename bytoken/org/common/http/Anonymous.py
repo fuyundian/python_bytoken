@@ -4,6 +4,7 @@ from http.client import HTTPException
 
 import jwt
 
+from bytoken.org.common.exe import ParamException
 from bytoken.org.config import secret_key, algorithm
 
 
@@ -21,9 +22,9 @@ def verifyToken(token: str) -> bool:
     try:
         payload = jwt.decode(token, secret_key, algorithms=[algorithm])
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
+        raise ParamException(code=401, message="Token has expired")
     except jwt.PyJWTError:
-        raise HTTPException(status_code=403, detail="Invalid token")
+        raise ParamException(code=403, message="Invalid token")
     return payload.get("exp").timestamp() < time.time()
 
 
