@@ -9,6 +9,7 @@ import jwt
 from bytoken.org.common.cache import getCache
 from bytoken.org.common.db.mysqldb import SessionLocal
 from bytoken.org.common.db.mysqldb.AbstractWrapper import AbstractWrapper
+from bytoken.org.common.exe import ParamException
 from bytoken.org.config import secret_key, access_token_expire_minutes, algorithm
 from bytoken.org.model.User import User
 from bytoken.org.service.UserService import UserService
@@ -29,12 +30,12 @@ class UserServiceImpl(UserService):
     def login(self, loginParam) -> string:
         if (loginParam.email is None or loginParam.password is None or loginParam.email == ""
                 or loginParam.password == ""):
-            raise ValueError("Parameter error")
+            raise ParamException(code=400, message="Parameter error")
         user = self.service.lambdaQuery().eq(loginParam.email != "", User.email, loginParam.email).one()
         if user is None:
-            raise ValueError("User not found")
+            raise ParamException(code=400, message="User not found")
         if checkPassword(loginParam.password, user.password) is False:
-            raise ValueError("Wrong user or password")
+            raise ParamException(code=400, message="Wrong user or password")
         token = createToken(user)
         redis_client = getCache().redis_client
         redis_client.set("python_user_token:" + str(user.id), token, access_token_expire_minutes)

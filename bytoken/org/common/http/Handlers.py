@@ -1,15 +1,15 @@
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from starlette.middleware.base import BaseHTTPMiddleware
 
+from bytoken.org.common.exe import ParamException
 from bytoken.org.common.http import Anonymous
 from bytoken.org.common.http.Anonymous import verifyToken
 from bytoken.org.common.res.DataRes import DataRes
 
 
 # 捕获 HTTPException
-async def httpExceptionHandler(exc: HTTPException) -> JSONResponse:
+async def httpExceptionHandler(request: Request, exc: HTTPException) -> JSONResponse:
     return JSONResponse(
         DataRes(
             code=exc.status_code,
@@ -19,7 +19,7 @@ async def httpExceptionHandler(exc: HTTPException) -> JSONResponse:
 
 
 # 捕获其他异常
-async def generalExceptionHandler(exc: Exception) -> JSONResponse:
+async def generalExceptionHandler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
         DataRes(
             code=500,
@@ -28,11 +28,20 @@ async def generalExceptionHandler(exc: Exception) -> JSONResponse:
     )
 
 
-async def validationExceptionHandler(exc: RequestValidationError):
+async def validationExceptionHandler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         DataRes(
             code=400,
             message=str(exc)
+        ).dict()
+    )
+
+
+async def paramExceptionHandler(request: Request, exc: ParamException):
+    return JSONResponse(
+        DataRes(
+            code=exc.code,
+            message=exc.message
         ).dict()
     )
 
