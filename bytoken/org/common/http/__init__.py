@@ -11,7 +11,7 @@ from bytoken.org.common.db.mysqldb import SessionLocal
 from bytoken.org.common.exe import ParamException
 from bytoken.org.common.http.Anonymous import Anonymous
 from bytoken.org.common.http.Handlers import httpExceptionHandler, authenticateRequestMiddleware, \
-    generalExceptionHandler, validationExceptionHandler, exceptionMiddleware, paramExceptionHandler
+    generalExceptionHandler, validationExceptionHandler, paramExceptionHandler
 from bytoken.org.controller import UserController
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
