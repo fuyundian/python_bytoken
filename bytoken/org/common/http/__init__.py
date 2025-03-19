@@ -1,6 +1,5 @@
 from typing import AsyncGenerator
 
-import jwt
 from fastapi import FastAPI
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
