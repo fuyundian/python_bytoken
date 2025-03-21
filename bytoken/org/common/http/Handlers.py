@@ -28,7 +28,7 @@ async def generalExceptionHandler(request: Request, exc: Exception) -> JSONRespo
     )
 
 
-async def validationExceptionHandler(request: Request, exc: RequestValidationError):
+async def validationExceptionHandler(request: Request, exc: RequestValidationError) -> JSONResponse:
     return JSONResponse(
         DataRes(
             code=400,
@@ -37,7 +37,7 @@ async def validationExceptionHandler(request: Request, exc: RequestValidationErr
     )
 
 
-async def paramExceptionHandler(request: Request, exc: ParamException):
+async def paramExceptionHandler(request: Request, exc: ParamException) -> JSONResponse:
     return JSONResponse(
         DataRes(
             code=exc.code,

@@ -9,9 +9,9 @@ import jwt
 from bytoken.org.common.cache import getCache
 from bytoken.org.common.db.mysqldb import SessionLocal
 from bytoken.org.common.db.mysqldb.AbstractWrapper import AbstractWrapper
-from bytoken.org.common.exe import ParamException
+from bytoken.org.common.exe.Asserter import Asserter
 from bytoken.org.config import secret_key, access_token_expire_minutes, algorithm
-from bytoken.org.model.User import User
+from bytoken.org.model.User import User, UserLoginParam
 from bytoken.org.service.UserService import UserService
 
 
@@ -27,15 +27,12 @@ class UserServiceImpl(UserService):
         user.password = "***"
         return user
 
-    def login(self, loginParam) -> string:
-        if (loginParam.email is None or loginParam.password is None or loginParam.email == ""
-                or loginParam.password == ""):
-            raise ParamException(code=400, message="Parameter error")
+    def login(self, loginParam: UserLoginParam) -> string:
+        Asserter.state(loginParam.email is not None and loginParam.password is not None, message="Parameter error")
+        Asserter.state(loginParam.email != "" and loginParam.password != "", message="Parameter error")
         user = self.service.lambdaQuery().eq(loginParam.email != "", User.email, loginParam.email).one()
-        if user is None:
-            raise ParamException(code=400, message="User not found")
-        if checkPassword(loginParam.password, user.password) is False:
-            raise ParamException(code=400, message="Wrong user or password")
+        Asserter.state(user is not None, message="User not found")
+        Asserter.state(checkPassword(loginParam.password, user.password), message="Wrong user or password")
         token = createToken(user)
         redis_client = getCache().redis_client
         redis_client.set("python_user_token:" + str(user.id), token, access_token_expire_minutes)

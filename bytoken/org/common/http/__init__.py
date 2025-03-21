@@ -1,13 +1,13 @@
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
-from fastapi import HTTPException, Request
+from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.security import OAuth2PasswordBearer
 
 from bytoken.org.common.cache import getCache
 from bytoken.org.common.db.mysqldb import SessionLocal
-from bytoken.org.common.exe import ParamException
+from bytoken.org.common.exe.ParamException import ParamException
 from bytoken.org.common.http.Anonymous import Anonymous
 from bytoken.org.common.http.Handlers import httpExceptionHandler, authenticateRequestMiddleware, \
     generalExceptionHandler, validationExceptionHandler, paramExceptionHandler
@@ -41,8 +41,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 app = FastAPI(lifespan=lifespan)
 app.middleware(authenticateRequestMiddleware)
+app.add_exception_handler(exc_class_or_status_code=ParamException, handler=paramExceptionHandler)
 app.add_exception_handler(handler=httpExceptionHandler, exc_class_or_status_code=HTTPException)
-app.add_exception_handler(handler=paramExceptionHandler, exc_class_or_status_code=ParamException)
 app.add_exception_handler(handler=validationExceptionHandler, exc_class_or_status_code=RequestValidationError)
 app.add_exception_handler(handler=generalExceptionHandler, exc_class_or_status_code=Exception)
 app.include_router(UserController.router, prefix="/user", tags=["user"])

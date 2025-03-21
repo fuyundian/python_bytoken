@@ -22,9 +22,7 @@ def verifyToken(token: str) -> bool:
     try:
         payload = jwt.decode(token, secret_key, algorithms=[algorithm])
     except jwt.ExpiredSignatureError:
-        raise ParamException(code=401, message="Token has expired")
+        raise ParamException.error(code=401, message="Token has expired")
     except jwt.PyJWTError:
-        raise ParamException(code=403, message="Invalid token")
+        raise ParamException.error(code=403, message="Invalid token")
     return payload.get("exp").timestamp() < time.time()
-
-

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Date, BigInteger, Boolean
 from sqlalchemy.ext.declarative import declarative_base
@@ -38,5 +40,5 @@ class User(Base):
 
 
 class UserLoginParam(BaseModel):
-    email: str
-    password: str
+    email: Optional[str] = None
+    password: Optional[str] = None
