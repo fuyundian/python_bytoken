@@ -1,11 +1,12 @@
 from typing import Optional, TypeVar
 
 from openai import BaseModel
+from starlette.responses import JSONResponse
 
 T = TypeVar('T')
 
 
-class DataRes(BaseModel):
+class DataRes:
     def __init__(self, code: int, message: str, data: Optional[T] = None):
         self.code = code
         self.message = message

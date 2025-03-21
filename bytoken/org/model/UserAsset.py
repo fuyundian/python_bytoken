@@ -1,7 +1,8 @@
 import enum
+from decimal import Decimal
 from typing import Optional
 
-from openai import BaseModel
+from pydantic import BaseModel
 from sqlalchemy import Column, String, BigInteger, Enum, Numeric
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -21,10 +22,10 @@ class UserAsset(Base):
     user_id = Column(BigInteger, nullable=False)
     account_type = Column(Enum(AccountTypeEnum), nullable=False)
     coin = Column(String(20), nullable=False)
-    balance = Column(Numeric(20, 8), nullable=False, default=0)
-    available = Column(Numeric(20, 8), nullable=False, default=0)
-    freeze = Column(Numeric(20, 8), nullable=False, default=0)
-    locked = Column(Numeric(20, 8), nullable=False, default=0)
+    balance = Column(Numeric(50, 8), nullable=False, default=0)
+    available = Column(Numeric(50, 8), nullable=False, default=0)
+    freeze = Column(Numeric(50, 8), nullable=False, default=0)
+    locked = Column(Numeric(50, 8), nullable=False, default=0)
 
     def __repr__(self):
         return f"<UserAsset(id={self.id}, account_id={self.user_id}, account_type={self.account_type}, coin={self.coin}, balance={self.balance})>"
@@ -32,4 +33,4 @@ class UserAsset(Base):
 
 class UserAssetParam(BaseModel):
     coin: Optional[str] = None
-    amount: Optional[int] = None
+    amount: Optional[Decimal] = None

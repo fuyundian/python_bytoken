@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from bytoken.org.model.UserAsset import UserAsset
+from bytoken.org.model.UserAsset import UserAsset, UserAssetParam
 
 
 class UserAssetService(ABC):
@@ -11,5 +11,5 @@ class UserAssetService(ABC):
         pass
 
     @abstractmethod
-    def deposition(self, user_id: int, amount: int, coin: str):
+    def deposition(self, user_id: int, param: UserAssetParam):
         pass

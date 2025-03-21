@@ -1,3 +1,4 @@
+import numbers
 from typing import TypeVar, Generic, Callable
 
 from sqlalchemy import update
@@ -56,7 +57,7 @@ class UpdateWrapper(Generic[T]):
             raise ValueError("No values to update.")
 
         # 使用 SQLAlchemy 的 update() 方法进行批量更新
-        stmt = update(self.model).where(*self.query._criterion).values(self.update_values)
+        stmt = update(self.model).where(self.query.whereclause).values(self.update_values)
 
         # 执行更新操作
         self.session.execute(stmt)
@@ -66,4 +67,12 @@ class UpdateWrapper(Generic[T]):
         """使用 Lambda 表达式进行字段更新"""
         # Lambda 表达式通常会返回一个新的值，用来更新字段
         self.update_values[field] = func(field)
+        return self
+
+    def inc(self, isUpdate: bool, field, value: numbers.Number = 1):
+        if isUpdate:
+            if field in self.update_values:
+                self.update_values[field] += value
+            else:
+                self.update_values[field] = value
         return self

@@ -16,8 +16,8 @@ class AbstractWrapper(Generic[T]):
         self.query = QueryWrapper(self.model, session)
         self.update = UpdateWrapper(self.model, session)
 
-    def lambdaQuery[T](self) -> QueryWrapper[T]:
+    def lambdaQuery(self) -> QueryWrapper[T]:
         return self.query
 
-    def lambdaUpdate[T](self) -> UpdateWrapper[T]:
+    def lambdaUpdate(self) -> UpdateWrapper[T]:
         return self.update

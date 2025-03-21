@@ -1,4 +1,3 @@
-from cgitb import text
 from typing import TypeVar, Generic, List
 
 from sqlalchemy import asc, desc
@@ -76,8 +75,7 @@ class QueryWrapper(Generic[T]):
         self.query = self.query.with_entities(*fields)
         return self
 
-    def last(self, query: bool, sql: str) -> "QueryWrapper":
-        if query is True:
-            """拼接自定义 SQL 片段，如 LIMIT 或 ORDER BY"""
-            self.query = self.query.from_statement(text(f"{str(self.query.statement)} {sql}"))
+    def limit(self, limit_count: int) -> "QueryWrapper":
+        """限制查询结果数量"""
+        self.query = self.query.limit(limit_count)
         return self
