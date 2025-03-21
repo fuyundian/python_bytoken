@@ -1,3 +1,5 @@
+import time
+
 from bytoken.org.common.cache import Redisson
 from bytoken.org.common.db.mysqldb import getSession
 from bytoken.org.common.db.mysqldb.AbstractWrapper import AbstractWrapper
@@ -20,16 +22,16 @@ class UserAssetServiceImpl(UserAssetService):
         Asserter.state(param.amount is not None and param.amount > 0, message="deposition amount not null")
         Asserter.state(param.coin is not None and param.coin != "", message="deposition coin not null")
 
-        # pyRedisson = Redisson.redisson()
-        # lock = pyRedisson.new_r_lock(f"user_asset_lock:{user_id}")
-        # try:
-        #     if lock.try_lock(20000, 10000) is True:
-        (self.service.lambdaUpdate()
-         .inc(param.amount is not None and param.amount > 0, UserAsset.available, param.amount)
-         .eq(user_id > 0, UserAsset.user_id, user_id)
-         .eq(param.coin is not None and param.coin != "", UserAsset.coin, param.coin)
-         .update())
-        # except Exception as e:
-        #     raise ParamException.error(message=str(e), code=503)
-        # finally:
-        #     lock.unlock()
+        pyRedisson = Redisson.redisson()
+        lock = pyRedisson.new_r_lock(f"user_asset_lock:{user_id}")
+        try:
+            if lock.try_lock(20000, 10000) is True:
+                (self.service.lambdaUpdate()
+                 .increment(param.amount is not None and param.amount > 0, UserAsset.available.key, param.amount)
+                 .eq(user_id > 0, UserAsset.user_id, user_id)
+                 .eq(param.coin is not None and param.coin != "", UserAsset.coin, param.coin)
+                 .update())
+        except Exception as e:
+            raise ParamException.error(message=str(e), code=503)
+        finally:
+            lock.unlock()

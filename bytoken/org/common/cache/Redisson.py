@@ -127,6 +127,8 @@ class RLock:
         """
         result = self.g.c.eval(script, 2, self.key, self.g.get_channel_name(self.key), "unlock",
                                self.g.watchDogTimeout * 1000, lock_name)
+        if result is None:
+            return -1  # 可以自定义一个失败码
         return int(result)
 
     def get_hash_key(self) -> str:

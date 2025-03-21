@@ -69,10 +69,11 @@ class UpdateWrapper(Generic[T]):
         self.update_values[field] = func(field)
         return self
 
-    def inc(self, isUpdate: bool, field, value: numbers.Number = 1):
-        if isUpdate:
-            if field in self.update_values:
-                self.update_values[field] += value
-            else:
-                self.update_values[field] = value
+    def increment(self, isUpdate: bool, field: str, value: numbers.Number = 1):
+        if not hasattr(self.model, field.key):
+            raise ValueError(f"Field '{field.key}' does not exist in model '{self.model.__tablename__}'")
+
+        if isUpdate is True:
+            # 这里使用 SQLAlchemy 的 func 进行字段自增
+            self.update_values[field] = getattr(self.model, field) + value
         return self
