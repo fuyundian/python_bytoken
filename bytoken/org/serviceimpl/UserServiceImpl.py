@@ -7,7 +7,7 @@ import bcrypt
 import jwt
 
 from bytoken.org.common.cache import getCache
-from bytoken.org.common.db.mysqldb import SessionLocal
+from bytoken.org.common.db.mysqldb import getSession
 from bytoken.org.common.db.mysqldb.AbstractWrapper import AbstractWrapper
 from bytoken.org.common.exe.Asserter import Asserter
 from bytoken.org.config import secret_key, access_token_expire_minutes, algorithm
@@ -17,7 +17,7 @@ from bytoken.org.service.UserService import UserService
 
 class UserServiceImpl(UserService):
     def __init__(self):
-        session = SessionLocal()
+        session = getSession()
         self.service = AbstractWrapper(User, session)
 
     def getUserById(self, user_id: int) -> Any | None:

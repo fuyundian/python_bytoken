@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 from bytoken.org.config import config
+
+_session_cache = {}
 
 
 # 解析数据库连接字符串
@@ -21,7 +23,19 @@ def createDbEngine(config: dict):
         pool_pre_ping=db.get("pool_pre_ping", True)
     )
 
-# 创建 SQLAlchemy 引擎和会话
-engine = createDbEngine(config)
-# 设置会话
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+def getSession() -> Session:
+    # 生成缓存键
+    cache_key = getDatabaseUrl(config)
+
+    # 如果已有缓存，则直接返回
+    if cache_key in _session_cache:
+        return _session_cache[cache_key]
+
+    # 创建 SQLAlchemy 引擎和会话
+    engine = createDbEngine(config)
+    # 设置会话
+    session = sessionmaker(bind=engine, autoflush=False, autocommit=False)()
+    # 缓存会话工厂
+    _session_cache[cache_key] = session
+    return session

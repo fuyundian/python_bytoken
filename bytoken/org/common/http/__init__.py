@@ -6,12 +6,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.security import OAuth2PasswordBearer
 
 from bytoken.org.common.cache import getCache
-from bytoken.org.common.db.mysqldb import SessionLocal
+from bytoken.org.common.db.mysqldb import getSession
 from bytoken.org.common.exe.ParamException import ParamException
 from bytoken.org.common.http.Anonymous import Anonymous
 from bytoken.org.common.http.Handlers import httpExceptionHandler, authenticateRequestMiddleware, \
     generalExceptionHandler, validationExceptionHandler, paramExceptionHandler
-from bytoken.org.controller import UserController
+from bytoken.org.controller import UserController, UserAssetController
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -31,7 +31,7 @@ class LifespanManager:
         # 应用关闭时的清理操作
         print("Application shutdown, closing resources...")
         await getCache().redis_client.close()
-        await SessionLocal.close_all()
+        await getSession.close_all()
 
 
 async def lifespan(app: FastAPI) -> AsyncGenerator:
@@ -46,3 +46,4 @@ app.add_exception_handler(handler=httpExceptionHandler, exc_class_or_status_code
 app.add_exception_handler(handler=validationExceptionHandler, exc_class_or_status_code=RequestValidationError)
 app.add_exception_handler(handler=generalExceptionHandler, exc_class_or_status_code=Exception)
 app.include_router(UserController.router, prefix="/user", tags=["user"])
+app.include_router(UserAssetController.router, prefix="/userAsset", tags=["userAsset"])
