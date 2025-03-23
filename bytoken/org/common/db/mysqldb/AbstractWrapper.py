@@ -1,5 +1,5 @@
 # 定义一个类型变量 T，用于指定模型类型
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, List
 
 from sqlalchemy.orm import Session
 
@@ -21,3 +21,29 @@ class AbstractWrapper(Generic[T]):
 
     def lambdaUpdate(self) -> UpdateWrapper[T]:
         return self.update
+
+    def save(self, entity: T) -> bool:
+        """保存单个对象"""
+        self.session.add(entity)
+        self.session.commit()
+        return True
+
+
+def batch_save(self, entities: List[T]) -> bool:
+    """批量保存多个对象"""
+    self.session.add_all(entities)
+    self.session.commit()
+    return True
+
+
+def save_or_update(self, entity: T, primary_key: str = "id") -> bool:
+    existing = self.session.query(self.model).get(getattr(entity, primary_key))
+    if existing:
+        for key, value in vars(entity).items():
+            if hasattr(existing, key):
+                setattr(existing, key, value)
+        self.session.merge(existing)
+    else:
+        self.session.add(entity)
+    self.session.commit()
+    return True

@@ -12,3 +12,9 @@ class Cache:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.redis_client.close()
         self.pool.disconnect()
+
+    async def close(self):
+        if self.redis_client is not None:
+            self.redis_client.close()
+        if self.pool is not None:
+            self.pool.disconnect()

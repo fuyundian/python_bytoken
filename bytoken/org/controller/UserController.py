@@ -7,13 +7,13 @@ from bytoken.org.common.http.Anonymous import getAnonymous
 from bytoken.org.common.http.Auth import getUserId
 from bytoken.org.common.res.DataRes import DataRes
 from bytoken.org.model.User import UserLoginParam
-from bytoken.org.service import getUserAssetService, getUserService
+from bytoken.org.service import getUserService
 
 router = APIRouter()
 
 
 @router.get(path="/getCurrentUser")
-async def getUserById(request: Request) :
+async def getUserById(request: Request):
     user = getUserService().getUserById(getUserId(request))
     return DataRes.success(data=user)
 

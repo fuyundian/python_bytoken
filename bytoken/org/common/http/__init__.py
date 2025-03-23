@@ -11,7 +11,8 @@ from bytoken.org.common.exe.ParamException import ParamException
 from bytoken.org.common.http.Anonymous import Anonymous
 from bytoken.org.common.http.Handlers import httpExceptionHandler, authenticateRequestMiddleware, \
     generalExceptionHandler, validationExceptionHandler, paramExceptionHandler
-from bytoken.org.controller import UserController, UserAssetController
+from bytoken.org.controller import UserController, UserAssetController, EventOrderController
+from bytoken.org.service import getQuotesService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -25,13 +26,15 @@ class LifespanManager:
         # 启动时的初始化操作（例如连接数据库或 Redis）
         print("Application started, initializing resources...")
         # 这里可以初始化资源，例如连接到数据库或 Redis
+        await getQuotesService().init()
         return self  # 返回自己
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         # 应用关闭时的清理操作
         print("Application shutdown, closing resources...")
-        await getCache().redis_client.close()
+        await getCache().close()
         await getSession.close_all()
+        await getQuotesService().exit()
 
 
 async def lifespan(app: FastAPI) -> AsyncGenerator:
@@ -47,3 +50,4 @@ app.add_exception_handler(handler=validationExceptionHandler, exc_class_or_statu
 app.add_exception_handler(handler=generalExceptionHandler, exc_class_or_status_code=Exception)
 app.include_router(UserController.router, prefix="/user", tags=["user"])
 app.include_router(UserAssetController.router, prefix="/userAsset", tags=["userAsset"])
+app.include_router(EventOrderController.router, prefix="/order", tags=["order"])

@@ -27,3 +27,5 @@ redis:
 secret_key: bytoken-1823
 algorithm: HS256
 access_token_expire_minutes: 86400
+
+quote_websock_url: wss://stream.binance.com:9443/ws/btcusdt@trade

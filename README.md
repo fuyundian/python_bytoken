@@ -6,7 +6,7 @@
 6. pip install gunicorn
 7. pip install dependency-injector
 8. pip install pyjwt
-
+9. pip install websockets
 
 
 

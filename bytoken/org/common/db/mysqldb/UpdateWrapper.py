@@ -2,6 +2,7 @@ import numbers
 from typing import TypeVar, Generic, Callable
 
 from sqlalchemy import update
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 # 定义一个类型变量 T，用于指定模型类型
@@ -55,11 +56,8 @@ class UpdateWrapper(Generic[T]):
         """执行更新操作"""
         if not self.update_values:
             raise ValueError("No values to update.")
-
-        # 使用 SQLAlchemy 的 update() 方法进行批量更新
+            # 使用 SQLAlchemy 的 update() 方法进行批量更新
         stmt = update(self.model).where(self.query.whereclause).values(self.update_values)
-
-        # 执行更新操作
         self.session.execute(stmt)
         self.session.commit()
 

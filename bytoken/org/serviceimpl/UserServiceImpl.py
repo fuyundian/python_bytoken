@@ -18,7 +18,7 @@ from bytoken.org.service.UserService import UserService
 class UserServiceImpl(UserService):
     def __init__(self):
         session = getSession()
-        self.service = AbstractWrapper(User, session)
+        self.service = AbstractWrapper[User](User, session)
 
     def getUserById(self, user_id: int) -> Any | None:
         if user_id is None:
