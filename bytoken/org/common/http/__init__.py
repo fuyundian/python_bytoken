@@ -34,7 +34,7 @@ class LifespanManager:
         print("Application shutdown, closing resources...")
         await getCache().close()
         await getQuotesService().exit()
-        await getSession.close_all()
+        getSession().close()
 
 
 async def lifespan(app: FastAPI) -> AsyncGenerator:

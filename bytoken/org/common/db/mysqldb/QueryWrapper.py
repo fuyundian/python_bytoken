@@ -78,4 +78,27 @@ class QueryWrapper(Generic[T]):
     def limit(self, limit_count: int) -> "QueryWrapper":
         """限制查询结果数量"""
         self.query = self.query.limit(limit_count)
+
+    def gt(self, query: bool, field, value) -> "QueryWrapper":
+        """大于条件查询"""
+        if query is True:
+            self.query = self.query.filter(field > value)
+        return self
+
+    def lt(self, query: bool, field, value) -> "QueryWrapper":
+        """小于条件查询"""
+        if query is True:
+            self.query = self.query.filter(field < value)
+        return self
+
+    def ge(self, query: bool, field, value) -> "QueryWrapper":
+        """大于等于条件查询"""
+        if query is True:
+            self.query = self.query.filter(field >= value)
+        return self
+
+    def le(self, query: bool, field, value) -> "QueryWrapper":
+        """小于等于条件查询"""
+        if query is True:
+            self.query = self.query.filter(field <= value)
         return self

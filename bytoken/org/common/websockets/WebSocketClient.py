@@ -14,22 +14,25 @@ class WebSocketClient:
         """建立 WebSocket 连接"""
         try:
             self.websocket = await websockets.connect(self.url)
-            print("✅ 已连接到 Binance WebSocket")
+            print("✅ 已连接到  WebSocket")
             asyncio.create_task(self.ping())  # 启动心跳任务
         except Exception as e:
             print(f"❌ WebSocket 连接失败: {e}")
+            await self.reconnect()
 
     async def ping(self):
         """发送心跳包"""
         try:
             while True:
-                if self.websocket and self.websocket.open:
-                    await self.websocket.ping()
+                if self.websocket and hasattr(self.websocket, 'open') and self.websocket.open:
+                    await self.websocket.ping()  # Send Ping
                     print("📡 发送 Ping 保持连接")
-                await asyncio.sleep(self.ping_interval)
+                else:
+                    print("⚠️ WebSocket 连接未打开或已关闭.")
+                    break  # Exit the loop if the connection is closed or invalid
+                await asyncio.sleep(self.ping_interval)  # Wait before sending next ping
         except Exception as e:
             print(f"⚠️ Ping 发送失败: {e}")
-
 
     @abc.abstractmethod
     async def receive(self):
@@ -41,6 +44,13 @@ class WebSocketClient:
             await self.receive()
 
     async def close(self):
-        if self.websocket is None or self.websocket.open is False:
-            return
-        await self.websocket.exit()
+        """关闭 WebSocket 连接"""
+        try:
+            if self.websocket is None or not self.websocket.open:
+                print("连接已经关闭或不存在.")
+                return
+
+            await self.websocket.close()
+            print("WebSocket 连接已关闭.")
+        except Exception as e:
+            print(f"关闭连接失败: {e}")

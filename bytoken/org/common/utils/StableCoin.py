@@ -1,3 +1,3 @@
 USDT = "USDT"
 BNB = "BNB"
-SupportedCurrencies = [USDT, BNB]
+SupportedCurrencies = ["BTC"]
