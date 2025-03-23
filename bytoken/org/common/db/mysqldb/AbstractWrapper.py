@@ -3,6 +3,7 @@ from typing import Generic, TypeVar, List
 
 from sqlalchemy.orm import Session
 
+from bytoken.org.common.db.mysqldb import createNewSession
 from bytoken.org.common.db.mysqldb.QueryWrapper import QueryWrapper
 from bytoken.org.common.db.mysqldb.UpdateWrapper import UpdateWrapper
 
@@ -14,15 +15,15 @@ class AbstractWrapper(Generic[T]):
         self.model = model  # 要查询的模型
         self.session = session  # 数据库会话
         self.query = QueryWrapper(self.model, session)
-        self.update = UpdateWrapper(self.model, session)
 
     def lambdaQuery(self) -> QueryWrapper[T]:
-        return self.query
+        return QueryWrapper(self.model, createNewSession())
 
     def lambdaUpdate(self) -> UpdateWrapper[T]:
-        return self.update
+        return UpdateWrapper(self.model, createNewSession())
 
     def save(self, entity: T) -> bool:
+        self.session = createNewSession()
         """保存单个对象"""
         self.session.add(entity)
         self.session.commit()
@@ -30,6 +31,7 @@ class AbstractWrapper(Generic[T]):
 
 
 def batch_save(self, entities: List[T]) -> bool:
+    self.session = createNewSession()
     """批量保存多个对象"""
     self.session.add_all(entities)
     self.session.commit()
@@ -37,6 +39,7 @@ def batch_save(self, entities: List[T]) -> bool:
 
 
 def save_or_update(self, entity: T, primary_key: str = "id") -> bool:
+    self.session = createNewSession()
     existing = self.session.query(self.model).get(getattr(entity, primary_key))
     if existing:
         for key, value in vars(entity).items():

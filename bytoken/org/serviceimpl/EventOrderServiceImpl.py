@@ -72,22 +72,19 @@ class EventOrderServiceImpl(EventOrderService):
                                .eq(True, EventOrder.status, OrderStatusEnum.OPEN)
                                .le(True, EventOrder.close_trigger_time, datetime.now())
                                .list())
-                if closeOrders is None:
+                if closeOrders is None or len(closeOrders) == 0:
                     return
                 for closeOrder in closeOrders:
                     self.closeOrder(closeOrder, price)
 
-        except ParamException as e:
-            raise e
         except Exception as e:
-            raise ParamException.error(str(e))
+            print(str(e))
         finally:
             lock.unlock()
 
     def closeOrder(self, order: EventOrder, closePrice: decimal.Decimal):
         if order is None or order.status != OrderStatusEnum.OPEN:
             return
-        from bytoken.org.service import getUserAssetService
         profit = - (order.buy_amount * (decimal.Decimal('1') - order.fee_rate))
         if (order.open_price > decimal.Decimal(closePrice) and order.position == PositionEnum.SHORT) or (
                 order.open_price < decimal.Decimal(closePrice) and order.position == PositionEnum.LONG):
@@ -95,10 +92,12 @@ class EventOrderServiceImpl(EventOrderService):
         update = (self.service.lambdaUpdate()
                   .set(True, EventOrder.close_time, datetime.now())
                   .set(True, EventOrder.status, OrderStatusEnum.CLOSE)
+                  .set(True, EventOrder.close_price, decimal.Decimal(closePrice))
                   .set(True, EventOrder.profit, profit)
                   .eq(True, EventOrder.id, order.id)
                   .update())
-        if update is False:
+        if update is None or update is False:
             return
+        from bytoken.org.service import getUserAssetService
         getUserAssetService().incBalance(user_id=order.user_id, coin=StableCoin.USDT, amount=profit)
         getUserAssetService().lock(user_id=order.user_id, coin=StableCoin.USDT, lockAmount=-order.buy_amount)

@@ -1,5 +1,4 @@
 import abc
-import asyncio
 
 import websockets
 
@@ -15,24 +14,10 @@ class WebSocketClient:
         try:
             self.websocket = await websockets.connect(self.url)
             print("✅ 已连接到  WebSocket")
-            asyncio.create_task(self.ping())  # 启动心跳任务
+            # asyncio.create_task(self.ping())  # 启动心跳任务
         except Exception as e:
             print(f"❌ WebSocket 连接失败: {e}")
             await self.reconnect()
-
-    async def ping(self):
-        """发送心跳包"""
-        try:
-            while True:
-                if self.websocket and hasattr(self.websocket, 'open') and self.websocket.open:
-                    await self.websocket.ping()  # Send Ping
-                    print("📡 发送 Ping 保持连接")
-                else:
-                    print("⚠️ WebSocket 连接未打开或已关闭.")
-                    break  # Exit the loop if the connection is closed or invalid
-                await asyncio.sleep(self.ping_interval)  # Wait before sending next ping
-        except Exception as e:
-            print(f"⚠️ Ping 发送失败: {e}")
 
     @abc.abstractmethod
     async def receive(self):

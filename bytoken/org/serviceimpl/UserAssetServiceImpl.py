@@ -32,7 +32,7 @@ class UserAssetServiceImpl(UserAssetService):
         try:
             if lock.try_lock(20000, 10000) is True:
                 (self.service.lambdaUpdate()
-                 .increment(lockAmount is not None and lockAmount > 0, UserAsset.locked.key, lockAmount)
+                 .increment(lockAmount is not None, UserAsset.locked.key, lockAmount)
                  .eq(user_id > 0, UserAsset.user_id, user_id)
                  .eq(coin is not None and coin != "", UserAsset.coin, coin)
                  .update())
@@ -48,8 +48,8 @@ class UserAssetServiceImpl(UserAssetService):
         try:
             if lock.try_lock(20000, 10000) is True:
                 (self.service.lambdaUpdate()
-                 .increment(amount is not None , UserAsset.available.key, amount)
-                 .increment(amount is not None , UserAsset.balance.key, amount)
+                 .increment(amount is not None, UserAsset.available.key, amount)
+                 .increment(amount is not None, UserAsset.balance.key, amount)
                  .eq(user_id > 0, UserAsset.user_id, user_id)
                  .eq(coin is not None and coin != "", UserAsset.coin, coin)
                  .update())

@@ -1,9 +1,9 @@
+from typing import Dict
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from bytoken.org.config import config
-
-_session_cache = {}
 
 
 # 解析数据库连接字符串
@@ -24,18 +24,34 @@ def createDbEngine(config: dict):
     )
 
 
+_session_cache: Dict[str, Session] = {}
+
+
 def getSession() -> Session:
-    # 生成缓存键
+    """Creates and retrieves a cached session for the given database configuration."""
+    # Generate a unique cache key based on the database URL configuration
     cache_key = getDatabaseUrl(config)
 
-    # 如果已有缓存，则直接返回
+    # Check if a session is already cached for this configuration
     if cache_key in _session_cache:
-        return _session_cache[cache_key]
+        session = _session_cache[cache_key]
+        # Check if the cached session is still active, otherwise recreate it
+        if not session.is_active:
+            session.close()  # Close the inactive session
+            # Recreate a new session and cache it
+            session = createNewSession()
+            _session_cache[cache_key] = session
+        return session
 
-    # 创建 SQLAlchemy 引擎和会话
-    engine = createDbEngine(config)
-    # 设置会话
-    session = sessionmaker(bind=engine, autoflush=False, autocommit=False)()
-    # 缓存会话工厂
+    # If no cached session, create a new session
+    session = createNewSession()
     _session_cache[cache_key] = session
     return session
+
+
+def createNewSession() -> Session:
+    """Helper function to create a new session."""
+    # Create the SQLAlchemy engine based on the configuration
+    engine = createDbEngine(config)
+    # Return a new session bound to the engine
+    return sessionmaker(bind=engine, autoflush=False, autocommit=False)()

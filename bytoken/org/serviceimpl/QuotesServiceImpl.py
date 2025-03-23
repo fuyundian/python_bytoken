@@ -26,6 +26,9 @@ class QuotesServiceImpl(QuotesService, WebSocketClient):
         try:
             async for message in self.websocket:
                 data = json.loads(message)
+                if 'pong' in data:
+                    print("✅ 收到 Pong 响应:", data)
+                    return
                 self.prices['BTC'] = data.get("p", "N/A")
                 print(
                     f"💹 最新价格更新: {self.prices['BTC']} | 更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
