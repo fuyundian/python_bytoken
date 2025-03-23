@@ -23,7 +23,7 @@ class UserAssetServiceImpl(UserAssetService):
     def deposition(self, user_id: int, param: UserAssetParam):
         Asserter.state(param.amount is not None and param.amount > 0, message="deposition amount not null")
         Asserter.state(param.coin is not None and param.coin != "", message="deposition coin not null")
-        self.incBalance(user_id, param.coin, param.amount)
+        self.incBalance(user_id=user_id, coin=param.coin, amount=param.amount)
 
     @Transactional
     def lock(self, user_id: int, coin: str, lockAmount: decimal.Decimal):

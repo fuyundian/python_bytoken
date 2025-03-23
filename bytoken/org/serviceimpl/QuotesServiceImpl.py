@@ -27,14 +27,18 @@ class QuotesServiceImpl(QuotesService, WebSocketClient):
             async for message in self.websocket:
                 data = json.loads(message)
                 self.prices['BTC'] = data.get("p", "N/A")
-                print(f"💹 最新价格更新: {self.prices['BTC']} | 更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                print(
+                    f"💹 最新价格更新: {self.prices['BTC']} | 更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 # 等待 1 秒
                 await asyncio.sleep(5)
 
         except Exception as e:
             print(f"❌ 接收错误: {e}")
 
-    async def init(self):
+    def init(self):
+        asyncio.create_task(self.start())
+
+    async def start(self):
         try:
             await self.connect()
             print("✅ WebSocket 连接成功")

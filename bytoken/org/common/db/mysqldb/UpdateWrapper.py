@@ -68,8 +68,6 @@ class UpdateWrapper(Generic[T]):
         return self
 
     def increment(self, isUpdate: bool, field: str, value: numbers.Number = 1):
-        if not hasattr(self.model, field.key):
-            raise ValueError(f"Field '{field.key}' does not exist in model '{self.model.__tablename__}'")
 
         if isUpdate is True:
             # 这里使用 SQLAlchemy 的 func 进行字段自增

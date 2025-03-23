@@ -26,15 +26,15 @@ class LifespanManager:
         # 启动时的初始化操作（例如连接数据库或 Redis）
         print("Application started, initializing resources...")
         # 这里可以初始化资源，例如连接到数据库或 Redis
-        await getQuotesService().init()
+        getQuotesService().init()
         return self  # 返回自己
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         # 应用关闭时的清理操作
         print("Application shutdown, closing resources...")
         await getCache().close()
-        await getSession.close_all()
         await getQuotesService().exit()
+        await getSession.close_all()
 
 
 async def lifespan(app: FastAPI) -> AsyncGenerator:

@@ -4,7 +4,7 @@ import decimal
 
 class QuotesService(abc.ABC):
     @abc.abstractmethod
-    async def init(self):
+    def init(self):
         pass
 
     @abc.abstractmethod

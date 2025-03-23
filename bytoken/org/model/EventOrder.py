@@ -15,10 +15,16 @@ class OrderStatusEnum(enum.Enum):
     CLOSE = "CLOSE"
 
 
+class PositionEnum(enum.Enum):
+    # Define the possible account types here
+    LONG = "LONG"
+    SHORT = "SHORT"
+
+
 class EventOrder(Base):
     __tablename__ = 'event_order'
 
-    id = Column(BigInteger, primary_key=True, autoincrement=False)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
     open_price = Column(DECIMAL(50, 15), nullable=True, comment='开仓价格')
     close_price = Column(DECIMAL(50, 15), nullable=True, comment='平仓价格')
     fee = Column(DECIMAL(12, 4), nullable=True, comment='手续费')
@@ -33,6 +39,7 @@ class EventOrder(Base):
     user_id = Column(BigInteger, nullable=True, comment='开单用户')
     base_coin = Column(String(255), nullable=True, comment='开单币种')
     status = Column(Enum(OrderStatusEnum), nullable=True, comment='订单状态')
+    position = Column(Enum(PositionEnum), nullable=True, comment='订单状态')
 
     def __repr__(self):
         return f"<EventOrder(id={self.id}, base_coin={self.base_coin}, profit={self.profit})>"
@@ -40,5 +47,6 @@ class EventOrder(Base):
 
 class OrderParam(BaseModel):
     intervals: Optional[int] = None
-    baseCoin: Optional[str] = None
+    buyBaseCoin: Optional[str] = None
     buyAmount: Optional[Decimal] = None
+    position: Optional[PositionEnum] = None
