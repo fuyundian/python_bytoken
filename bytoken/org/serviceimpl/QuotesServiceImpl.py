@@ -42,6 +42,7 @@ class QuotesServiceImpl(QuotesService, WebSocketClient):
 
         except Exception as e:
             print(f"❌ 接收错误: {e}")
+            await super().reconnect()
 
     def init(self):
         asyncio.create_task(self.start())

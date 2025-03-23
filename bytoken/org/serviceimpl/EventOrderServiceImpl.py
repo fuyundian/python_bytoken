@@ -85,10 +85,11 @@ class EventOrderServiceImpl(EventOrderService):
     def closeOrder(self, order: EventOrder, closePrice: decimal.Decimal):
         if order is None or order.status != OrderStatusEnum.OPEN:
             return
-        profit = - (order.buy_amount * (decimal.Decimal('1') - order.fee_rate))
-        if (order.open_price > decimal.Decimal(closePrice) and order.position == PositionEnum.SHORT) or (
-                order.open_price < decimal.Decimal(closePrice) and order.position == PositionEnum.LONG):
-            profit = -profit
+        base_profit = order.buy_amount * (decimal.Decimal('1') - order.fee_rate)
+        profit = base_profit
+        if (order.open_price < decimal.Decimal(closePrice) and order.position == PositionEnum.SHORT) or (
+                order.open_price > decimal.Decimal(closePrice) and order.position == PositionEnum.LONG):
+            profit = - base_profit
         update = (self.service.lambdaUpdate()
                   .set(True, EventOrder.close_time, datetime.now())
                   .set(True, EventOrder.status, OrderStatusEnum.CLOSE)
