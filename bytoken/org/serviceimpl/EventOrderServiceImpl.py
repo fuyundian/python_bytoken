@@ -25,7 +25,7 @@ class EventOrderServiceImpl(EventOrderService):
         Asserter.state(expression=order.buyAmount is not None, message="金额不能为空")
         Asserter.state(expression=order.intervals is not None, message="周期不能为空")
         Asserter.state(expression=order.buyBaseCoin is not None, message="币种不能为空")
-        Asserter.state(expression=order.position is not None, message="下单方向不能")
+        Asserter.state(expression=order.position is not None, message="下单方向不能为空")
         Asserter.state(
             expression=order.buyBaseCoin in StableCoin.SupportedCurrencies,
             message="目前支持币种：" + ", ".join(StableCoin.SupportedCurrencies)

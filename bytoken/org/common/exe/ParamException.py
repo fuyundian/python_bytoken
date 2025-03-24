@@ -18,4 +18,4 @@ class ParamException(Exception):
 
 
 def error(message: str, code: int = 400) -> "ParamException":
-    return ParamException(code=code, message=message)
+    return ParamException.error(code=code, message=message)

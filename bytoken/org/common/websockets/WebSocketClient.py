@@ -12,7 +12,7 @@ class WebSocketClient:
     async def connect(self):
         """建立 WebSocket 连接"""
         try:
-            self.websocket = await websockets.connect(self.url)
+            self.websocket = await websockets.connect(uri=self.url, ping_interval=self.ping_interval)
             print("✅ 已连接到  WebSocket")
             # asyncio.create_task(self.ping())  # 启动心跳任务
         except Exception as e:

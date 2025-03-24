@@ -1,6 +1,5 @@
 # 定义一个空的依赖，用来标记不需要鉴权的接口
-from datetime import time
-from http.client import HTTPException
+import time
 
 import jwt
 
@@ -21,8 +20,14 @@ def getAnonymous() -> Anonymous:
 def verifyToken(token: str) -> bool:
     try:
         payload = jwt.decode(token, secret_key, algorithms=[algorithm])
+        exp = payload.get("exp")
+        if exp is None:
+            raise ParamException.error(code=403, message="Invalid token: no expiration time")
+        # 验证是否过期
+        if exp < time.time():
+            raise ParamException.error(code=401, message="Token has expired")
+        return True
     except jwt.ExpiredSignatureError:
         raise ParamException.error(code=401, message="Token has expired")
     except jwt.PyJWTError:
         raise ParamException.error(code=403, message="Invalid token")
-    return payload.get("exp").timestamp() < time.time()

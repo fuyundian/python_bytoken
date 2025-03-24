@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.security import OAuth2PasswordBearer
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from bytoken.org.common.cache import getCache
 from bytoken.org.common.db.mysqldb import getSession
@@ -43,7 +44,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 
 app = FastAPI(lifespan=lifespan)
-app.middleware(authenticateRequestMiddleware)
+app.add_middleware(BaseHTTPMiddleware, dispatch=authenticateRequestMiddleware)
 app.add_exception_handler(exc_class_or_status_code=ParamException, handler=paramExceptionHandler)
 app.add_exception_handler(handler=httpExceptionHandler, exc_class_or_status_code=HTTPException)
 app.add_exception_handler(handler=validationExceptionHandler, exc_class_or_status_code=RequestValidationError)

@@ -53,9 +53,9 @@ async def authenticateRequestMiddleware(request: Request, call_next):
         return response
     authKey = request.headers.get("Authorization")
     if authKey is None:
-        return None
+        raise ParamException.error(code=403, message="未登录")
     authKey = authKey.replace("Bearer ", "").replace("bearer ", "")
     if verifyToken(authKey) is False:
-        raise HTTPException(status_code=403, detail="Unauthorized")
+        raise ParamException.error(code=403, message="Token无效")
     response = await call_next(request)
     return response
