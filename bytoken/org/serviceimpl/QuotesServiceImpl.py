@@ -9,6 +9,22 @@ from bytoken.org.common.websockets.WebSocketClient import WebSocketClient
 from bytoken.org.config import quote_websock_url
 from bytoken.org.service.QuotesService import QuotesService
 
+unsubscribe = {
+    "method": "UNSUBSCRIBE",
+    "params": [
+        "btcusdt@aggTrade"
+    ],
+    "id": 1
+}
+
+subscribe = {
+    "method": "SUBSCRIBE",
+    "params": [
+        "btcusdt@aggTrade"
+    ],
+    "id": 1
+}
+
 
 class QuotesServiceImpl(QuotesService, WebSocketClient):
     """行情管理类"""
@@ -26,6 +42,7 @@ class QuotesServiceImpl(QuotesService, WebSocketClient):
         try:
             async for message in self.websocket:
                 data = json.loads(message)
+                print(data)
                 if 'pong' in data:
                     print("✅ 收到 Pong 响应:", data)
                     return
@@ -51,21 +68,31 @@ class QuotesServiceImpl(QuotesService, WebSocketClient):
         try:
             await self.connect()
             print("✅ WebSocket 连接成功")
+            await self.send(subscribe)
+            print("✅ 发送订阅成功")
             await self.receive()  # 开始接收数据
         except websockets.InvalidHandshake as e:
             print(f"❌ 握手失败: {e}")
             await self.reconnect()
+            await self.send(subscribe)
+            print("✅ 发送订阅成功")
         except websockets.WebSocketException as e:
             print(f"❌ WebSocket 异常: {e}")
             await self.reconnect()
+            await self.send(subscribe)
+            print("✅ 发送订阅成功")
         except Exception as e:
             print(f"❌ 连接失败: {e}")
             await self.reconnect()
+            await self.send(subscribe)
+            print("✅ 发送订阅成功")
 
     async def exit(self):
         """关闭 WebSocket 连接"""
         try:
             await super().close()
+            await self.send(unsubscribe)
+            print("✅ 关闭订阅成功")
             print("🔌 WebSocket 已关闭")
         except Exception as e:
             print(f"❌ 关闭连接失败: {e}")
