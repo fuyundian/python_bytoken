@@ -12,12 +12,12 @@ class Anonymous:
         self.name = "Anonymous User"
 
 
-def getAnonymous() -> Anonymous:
+def get_anonymous() -> Anonymous:
     return Anonymous()
 
 
 # 用于验证用户身份的函数
-def verifyToken(token: str) -> bool:
+def verify_token(token: str) -> bool:
     try:
         payload = jwt.decode(token, secret_key, algorithms=[algorithm])
         exp = payload.get("exp")

@@ -6,7 +6,7 @@ from bytoken.org.model.User import User, UserLoginParam
 
 class UserService(ABC):
     @abstractmethod
-    def getUserById(self, userId: int) -> User:
+    def get_user_by_id(self, userId: int) -> User:
         pass
 
     @abstractmethod

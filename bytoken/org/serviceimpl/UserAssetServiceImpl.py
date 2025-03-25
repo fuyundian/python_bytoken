@@ -16,7 +16,7 @@ class UserAssetServiceImpl(UserAssetService):
         session = getSession()
         self.service = AbstractWrapper[UserAsset](UserAsset, session)
 
-    def getUserAsset(self, user_id: int, coin: str) -> UserAsset:
+    def get_user_asset(self, user_id: int, coin: str) -> UserAsset:
         return self.service.lambdaQuery().eq(user_id > 0, UserAsset.user_id, user_id).eq(
             coin is not None and coin != "", UserAsset.coin, coin).one()
 

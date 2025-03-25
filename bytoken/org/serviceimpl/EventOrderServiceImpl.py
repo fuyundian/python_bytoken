@@ -8,6 +8,7 @@ from bytoken.org.common.db.mysqldb.Transactional import Transactional
 from bytoken.org.common.exe.Asserter import Asserter
 from bytoken.org.common.exe.ParamException import ParamException
 from bytoken.org.common.utils import StableCoin
+from bytoken.org.common.utils.ResultPage import ResultPage
 from bytoken.org.model.EventOrder import OrderParam, EventOrder, OrderStatusEnum, PositionEnum
 from bytoken.org.service.EventOrderService import EventOrderService
 
@@ -21,13 +22,13 @@ class EventOrderServiceImpl(EventOrderService):
         self.service = AbstractWrapper[EventOrder](EventOrder, self.session)
 
     @Transactional
-    def postOrder(self, user_id: int, order: OrderParam):
-        Asserter.state(expression=order.buyAmount is not None, message="金额不能为空")
+    def post_order(self, user_id: int, order: OrderParam):
+        Asserter.state(expression=order.amount is not None, message="金额不能为空")
         Asserter.state(expression=order.intervals is not None, message="周期不能为空")
-        Asserter.state(expression=order.buyBaseCoin is not None, message="币种不能为空")
+        Asserter.state(expression=order.base_coin is not None, message="币种不能为空")
         Asserter.state(expression=order.position is not None, message="下单方向不能为空")
         Asserter.state(
-            expression=order.buyBaseCoin in StableCoin.SupportedCurrencies,
+            expression=order.base_coin in StableCoin.SupportedCurrencies,
             message="目前支持币种：" + ", ".join(StableCoin.SupportedCurrencies)
         )
         pyRedisson = redisson()
@@ -35,16 +36,17 @@ class EventOrderServiceImpl(EventOrderService):
         try:
             if lock.try_lock(10000, 10000):
                 from bytoken.org.service import getUserAssetService, getQuotesService
-                asset = getUserAssetService().getUserAsset(user_id=user_id, coin=StableCoin.USDT)
-                Asserter.state(expression=asset is not None and asset.available >= order.buyAmount + asset.locked,
+                asset = getUserAssetService().get_user_asset(user_id=user_id, coin=StableCoin.USDT)
+                Asserter.state(expression=asset is not None and asset.available >= order.amount + asset.locked,
                                message="余额不足")
-                getUserAssetService().lock(user_id=user_id, coin=StableCoin.USDT, lockAmount=order.buyAmount)
-                openPrice = getQuotesService().getPrice(baseCoin=order.buyBaseCoin)
+                getUserAssetService().lock(user_id=user_id, coin=StableCoin.USDT, lockAmount=order.amount)
+                openPrice = getQuotesService().getPrice(baseCoin=order.base_coin)
+                Asserter.state(openPrice is not None and openPrice <= 0, message="当前开仓价格不是最新的")
                 newOrder = EventOrder(
                     open_price=openPrice,
-                    fee=feeRate * order.buyAmount,
+                    fee=feeRate * order.amount,
                     fee_rate=feeRate,
-                    buy_amount=order.buyAmount,
+                    buy_amount=order.amount,
                     create_time=datetime.now(),
                     open_time=datetime.now(),
                     close_trigger_time=datetime.now() + timedelta(seconds=order.intervals * 60),
@@ -52,7 +54,7 @@ class EventOrderServiceImpl(EventOrderService):
                     user_id=user_id,
                     status=OrderStatusEnum.OPEN,
                     position=order.position,
-                    base_coin=order.buyBaseCoin,
+                    base_coin=order.base_coin,
                 )
                 self.service.save(newOrder)
         except ParamException as e:
@@ -62,7 +64,7 @@ class EventOrderServiceImpl(EventOrderService):
         finally:
             lock.unlock()
 
-    def closeOrders(self, coin: str, price: decimal.Decimal):
+    def close_orders(self, coin: str, price: decimal.Decimal):
         pyRedisson = redisson()
         lock = pyRedisson.new_r_lock("close_order_lock")
         try:
@@ -102,3 +104,12 @@ class EventOrderServiceImpl(EventOrderService):
         from bytoken.org.service import getUserAssetService
         getUserAssetService().incBalance(user_id=order.user_id, coin=StableCoin.USDT, amount=profit)
         getUserAssetService().lock(user_id=order.user_id, coin=StableCoin.USDT, lockAmount=-order.buy_amount)
+
+    def order_pages(self, user_id: int, param: OrderParam) -> ResultPage[EventOrder]:
+        return self.service.lambdaQuery() \
+            .eq(user_id > 0, EventOrder.user_id, user_id) \
+            .eq(param.status is not None, EventOrder.status, param.status) \
+            .eq(param.base_coin is not None, EventOrder.base_coin, param.base_coin) \
+            .eq(param.intervals is not None, EventOrder.intervals, param.intervals) \
+            .order_by(True, EventOrder.create_time, ascending=False) \
+            .page(page=param.page_num, page_size=param.page_size)

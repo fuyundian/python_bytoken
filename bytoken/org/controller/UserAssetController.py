@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get(path="/getUserAsset")
 async def getUserAsset(request: Request, param: UserAssetParam = Depends()):
-    asset = getUserAssetService().getUserAsset(getUserId(request), param.coin)
+    asset = getUserAssetService().get_user_asset(getUserId(request), param.coin)
     return DataRes.success(asset)
 
 

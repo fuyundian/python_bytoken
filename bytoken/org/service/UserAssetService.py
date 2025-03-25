@@ -8,7 +8,7 @@ class UserAssetService(ABC):
 
     # 获取用户资产
     @abstractmethod
-    def getUserAsset(self, user_id: int, coin: str) -> UserAsset:
+    def get_user_asset(self, user_id: int, coin: str) -> UserAsset:
         pass
 
     @abstractmethod

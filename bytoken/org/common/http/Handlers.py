@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 from bytoken.org.common.exe import ParamException
 from bytoken.org.common.http import Anonymous
-from bytoken.org.common.http.Anonymous import verifyToken
+from bytoken.org.common.http.Anonymous import verify_token
 from bytoken.org.common.res.DataRes import DataRes
 
 
@@ -48,6 +48,12 @@ async def paramExceptionHandler(request: Request, exc: ParamException) -> JSONRe
 
 # 自定义鉴权处理器
 async def authenticateRequestMiddleware(request: Request, call_next):
+    allowed_paths = ["/docs", "/html", "/css", "/openapi.json"]
+
+    # 如果请求路径以这些前缀开头，直接跳过验证
+    if any(request.url.path.startswith(path) for path in allowed_paths):
+        return await call_next(request)
+    # 允许跳过认证的路径前缀
     if any(isinstance(dep, Anonymous) for dep in request.scope.get("dependencies", [])):
         response = await call_next(request)
         return response
@@ -55,7 +61,7 @@ async def authenticateRequestMiddleware(request: Request, call_next):
     if authKey is None:
         raise ParamException.error(code=403, message="未登录")
     authKey = authKey.replace("Bearer ", "").replace("bearer ", "")
-    if verifyToken(authKey) is False:
+    if verify_token(authKey) is False:
         raise ParamException.error(code=403, message="Token无效")
     response = await call_next(request)
     return response

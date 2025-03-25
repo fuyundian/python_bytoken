@@ -1,14 +1,19 @@
 import abc
 import decimal
 
-from bytoken.org.model.EventOrder import OrderParam
+from bytoken.org.common.utils.ResultPage import ResultPage
+from bytoken.org.model.EventOrder import OrderParam, EventOrder
 
 
 class EventOrderService(abc.ABC):
     @abc.abstractmethod
-    def postOrder(self, user_id: int, order: OrderParam):
+    def post_order(self, user_id: int, order: OrderParam):
         pass
 
     @abc.abstractmethod
-    def closeOrders(self, coin: str, price: decimal.Decimal):
+    def close_orders(self, coin: str, price: decimal.Decimal):
+        pass
+
+    @abc.abstractmethod
+    def order_pages(self, user_id: int, param: OrderParam) -> ResultPage[EventOrder]:
         pass

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 
 from bytoken.org.common.http.Auth import getUserId
 from bytoken.org.common.res.DataRes import DataRes
@@ -10,5 +10,11 @@ router = APIRouter()
 
 @router.post(path="/postOrder")
 async def postOrder(request: Request, param: OrderParam):
-    getEventOrderService().postOrder(getUserId(request), param)
+    getEventOrderService().post_order(getUserId(request), param)
     return DataRes.success()
+
+
+@router.get(path="/orderPages")
+async def orderPages(request: Request, param: OrderParam = Depends()):
+    orderRecords = getEventOrderService().order_pages(getUserId(request), param)
+    return DataRes.success(data=orderRecords)

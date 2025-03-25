@@ -46,7 +46,10 @@ class EventOrder(Base):
 
 
 class OrderParam(BaseModel):
+    page_num: Optional[int] = 1
+    page_size: Optional[int] = 10
     intervals: Optional[int] = None
-    buyBaseCoin: Optional[str] = None
-    buyAmount: Optional[Decimal] = None
+    status: Optional[OrderStatusEnum] = None
+    base_coin: Optional[str] = None
+    amount: Optional[Decimal] = None
     position: Optional[PositionEnum] = None

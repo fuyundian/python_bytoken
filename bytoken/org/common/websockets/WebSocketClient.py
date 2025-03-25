@@ -23,9 +23,14 @@ class WebSocketClient:
     async def receive(self):
         pass
 
-    @abc.abstractmethod
-    async def send(self, data):
-        pass
+    async def send(self, data: str):
+        try:
+            if self.websocket is not None:  # Fix the check
+                await self.websocket.send(message=data)
+            else:
+                print("⚠️ WebSocket is not initialized.")
+        except Exception as e:
+            print(f"❌ WebSocket send failed: {e}")
 
     async def reconnect(self):
         if self.websocket is None or self.websocket.open is False:
@@ -35,11 +40,11 @@ class WebSocketClient:
     async def close(self):
         """关闭 WebSocket 连接"""
         try:
-            if self.websocket is None or not self.websocket.open:
-                print("连接已经关闭或不存在.")
+            if self.websocket is None or self.websocket.close_code is not None:
+                print("⚠️ 连接已经关闭或不存在.")
                 return
 
             await self.websocket.close()
-            print("WebSocket 连接已关闭.")
+            print("✅ WebSocket 连接已关闭.")
         except Exception as e:
-            print(f"关闭连接失败: {e}")
+            print(f"❌ 关闭连接失败: {e}")

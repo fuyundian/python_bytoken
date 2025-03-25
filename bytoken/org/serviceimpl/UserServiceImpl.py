@@ -20,7 +20,7 @@ class UserServiceImpl(UserService):
         session = getSession()
         self.service = AbstractWrapper[User](User, session)
 
-    def getUserById(self, user_id: int) -> Any | None:
+    def get_user_by_id(self, user_id: int) -> Any | None:
         if user_id is None:
             return None
         user = self.service.lambdaQuery().eq(user_id > 0, User.id, user_id).one()
