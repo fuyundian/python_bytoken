@@ -45,7 +45,7 @@ class QuotesServiceImpl(QuotesService, WebSocketClient):
                 if 'pong' in data:
                     print("✅ 收到 Pong 响应:", data)
                     return
-                self.prices['BTC'] = data.get("p", "N/A")
+                self.prices['BTC'] = decimal.Decimal(data.get("p", '0'))
                 print(
                     f"💹 最新价格更新: {self.prices['BTC']} | 更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 from bytoken.org.service import getEventOrderService
