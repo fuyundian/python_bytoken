@@ -8,7 +8,7 @@ class QuotesService(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def getPrice(self, baseCoin: str) -> decimal.Decimal:
+    def get_price(self, baseCoin: str) -> decimal.Decimal:
         pass
 
     @abc.abstractmethod

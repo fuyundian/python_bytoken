@@ -33,7 +33,7 @@ class QuotesServiceImpl(QuotesService, WebSocketClient):
         super().__init__(quote_websock_url)
         self.prices = {"BTC": decimal.Decimal(0)}
 
-    def getPrice(self, baseCoin=str):
+    def get_price(self, baseCoin=str):
         """获取最新价格"""
         return self.prices.get(baseCoin, decimal.Decimal('0'))  #
 

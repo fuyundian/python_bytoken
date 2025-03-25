@@ -39,11 +39,11 @@ class EventOrderServiceImpl(EventOrderService):
                 asset = getUserAssetService().get_user_asset(user_id=user_id, coin=StableCoin.USDT)
                 Asserter.state(expression=asset is not None and asset.available >= order.amount + asset.locked,
                                message="余额不足")
+                open_price = getQuotesService().get_price(baseCoin=order.base_coin)
+                Asserter.state(open_price is not None and decimal.Decimal(open_price) > 0, message="当前开仓价格不是最新的")
                 getUserAssetService().lock(user_id=user_id, coin=StableCoin.USDT, lockAmount=order.amount)
-                openPrice = getQuotesService().getPrice(baseCoin=order.base_coin)
-                Asserter.state(openPrice is not None and openPrice <= 0, message="当前开仓价格不是最新的")
                 newOrder = EventOrder(
-                    open_price=openPrice,
+                    open_price=open_price,
                     fee=feeRate * order.amount,
                     fee_rate=feeRate,
                     buy_amount=order.amount,
